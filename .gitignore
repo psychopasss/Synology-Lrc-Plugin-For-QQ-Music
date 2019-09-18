@@ -1,0 +1,7 @@
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+
+#忽略某文档
+.history
