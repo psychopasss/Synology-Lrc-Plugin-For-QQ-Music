@@ -1,7 +1,7 @@
 <?php
 
 // Must set to false when running on DS Station
-const DEBUG = true;
+const DEBUG = false;
 // Set to TURE is Chinese translation is needed
 const NEED_TRANSLATION = true;
 
@@ -13,10 +13,10 @@ const NEED_TRANSLATION = true;
  *   - Sort result according to similarity of artist and title.
  *   - Add Chinese translated lyric if {@code NEED_TRANSLATION} is {@code TRUE}.
  *
- * @author Ludy Su (https://github.com/LudySu/Synology-LrcPlugin)
+ * @author PsychoPass (https://github.com/psychopasss/Synology-Lrc-Plugin-For-QQ-Music)
  * @see https://global.download.synology.com/download/Document/DeveloperGuide/AS_Guide.pdf
  */
-class QQLrc {
+class ZainQQLrc {
     private $mArtist = "";
     private $mTitle = "";
 
@@ -169,7 +169,7 @@ class QQLrc {
         }
         
         // return $resultLrc;
-        $r = html_entity_decode($resultLrc, ENT_QUOTES|ENT_HTML5);
+        $r = html_entity_decode($resultLrc, ENT_QUOTES | ENT_HTML5);
         return $r;
     }
 
@@ -337,7 +337,7 @@ if (DEBUG == true) {
     echo "Trying to find lyrics for ['$title'] by artist ['$artist'] ...</br>";
 
     $testObj = new TestObj();
-    $downloader = (new ReflectionClass("QQLrc"))->newInstance();
+    $downloader = (new ReflectionClass("ZainQQLrc"))->newInstance();
     $count = $downloader->getLyricsList($artist, $title, $testObj);
     if ($count > 0) {
         $item = $testObj->getFirstItem();
