@@ -1,9 +1,9 @@
 <?php
 
 // Must set to false when running on DS Station
-const DEBUG = false;
+const DEBUG = true;
 // Set to TURE is Chinese translation is needed
-const NEED_TRANSLATION = false;
+const NEED_TRANSLATION = true;
 
 
 /**
@@ -126,7 +126,7 @@ class LudysuQQLrc {
 
         $json = json_decode($response, true);
         $orgLrc = $json['lyric'];
-        $transLrc = $json['tlyric']['lyric']; // Chinese translation lyric, but only some songs have
+        $transLrc = $json['trans']; // Chinese translation lyric, but only some songs have
 
         $resultLrc = $orgLrc;
         if (NEED_TRANSLATION && !$this->isNullOrEmptyString($transLrc)) {
@@ -264,7 +264,7 @@ class LudysuQQLrc {
      * Downloads a lyric for a given music_id.
      */
     private static function download($music_id) {
-        $url = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_yqq.fcg?nobase64=1&musicid=" . $music_id . "&format=json";
+        $url = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?nobase64=1&g_tk=5381&musicid=" . $music_id . "&format=json";
         
         $curl = curl_init();
 
@@ -332,8 +332,8 @@ if (DEBUG == true) {
     /**
      * Main
      */
-    $title = "微光";
-    $artist = "梁静茹";
+    $title = "Say so";
+    $artist = "Doja Cat";
     echo "Trying to find lyrics for ['$title'] by artist ['$artist'] ...</br>";
 
     $testObj = new TestObj();
