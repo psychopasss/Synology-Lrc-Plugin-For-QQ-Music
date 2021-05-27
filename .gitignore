@@ -3,5 +3,6 @@
 # except for .gitignore
 !.gitignore
 
+*.lrc
 #忽略某文档
 .history
