@@ -2,7 +2,7 @@
     "name": "QQLrc",
     "displayname": "QQ音乐",
     "description": "特色：根据曲名、艺术家匹配程度高低自动排序；可自动添加中文翻译",
-    "version": "1.1",
+    "version": "1.2",
     "site": "http://music.qq.com",
     "module": "qqmusic.php",
     "type": "lyric",

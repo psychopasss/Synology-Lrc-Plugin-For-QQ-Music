@@ -1,7 +1,7 @@
 <?php
 
 // Must set to false when running on DS Station
-const DEBUG = false;
+const DEBUG = true;
 // Set to TURE is Chinese translation is needed
 const NEED_TRANSLATION = true;
 
@@ -64,7 +64,7 @@ class ZainQQLrc {
 
         if (count($exactMatchArray) != 0) {
             $songArray = $exactMatchArray;
-        } else if (count($partialMatchArray != 0)) {
+        } else if (count($partialMatchArray) != 0) {
             $songArray = $partialMatchArray;
         }
 
@@ -102,13 +102,13 @@ class ZainQQLrc {
     /**
      * Downloads a lyric with the specific ID. Will have Chinese translation if {@code NEED_TRANSLATION} is {@code TRUE}.
      */
-    public function getLyrics($id, $info) {
+    public function getLyrics($id, $info,$title) {
         $lrc = $this->downloadLyric($id);
         if ($this->isNullOrEmptyString($lrc)) {
             return FALSE;
         }
 
-        $info->addLyrics($lrc, $id);
+        $info->addLyrics($lrc, $id, $title);
 
         return true;
     }
@@ -162,7 +162,7 @@ class ZainQQLrc {
                 }
                 
                 if (!$this->isNullOrEmptyString($trans)) { // $key is empty when it's not time tag, just metadata
-                    $resultLrc .= " 【" . $trans . "】";
+                    $resultLrc .= "\n".$key.$trans;
                 }
                 $resultLrc .= "\n";
             }
@@ -292,22 +292,25 @@ if (DEBUG == true) {
             $this->items = array();
         }
 
-        public function addLyrics($lyric, $id) {
+        public function addLyrics($lyric, $id, $title) {
             printf("</br>");
             printf("song id: %s\n", $id);
-            printf("</br>");
+            printf("</br>\n");
             printf("== lyric ==\n");
             printf("%s\n", $lyric);
             printf("** END of lyric **\n\n");
+
+            $myfile = fopen($title.".lrc","w");
+            fwrite($myfile, $lyric);
         }
 
         public function addTrackInfoToList($artist, $title, $id, $prefix) {
-            printf("</br>");
+            printf("</br>\n");
             printf("song id: %s\n", $id);
             printf("artist [%s]\n", $artist);
             printf("title [%s]\n", $title);
             printf("prefix [%s]\n", $prefix);
-            printf("</br>");
+            printf("</br>\n");
 
             array_push($this->items, array(
                 'artist' => $artist,
@@ -334,16 +337,15 @@ if (DEBUG == true) {
      */
     $title = "be my forever";
     $artist = "";
-    echo "Trying to find lyrics for ['$title'] by artist ['$artist'] ...</br>";
+    echo "Trying to find lyrics for ['$title'] by artist ['$artist'] ...</br>\n";
 
     $testObj = new TestObj();
     $downloader = (new ReflectionClass("ZainQQLrc"))->newInstance();
     $count = $downloader->getLyricsList($artist, $title, $testObj);
     if ($count > 0) {
         $item = $testObj->getFirstItem();
-        // var_dump($item);
         if (array_key_exists('id', $item)) {
-            $downloader->getLyrics($item['id'], $testObj);
+            $downloader->getLyrics($item['id'], $testObj, $title);
         } else {
             echo "\nno id to query lyric\n";
         }
