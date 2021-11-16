@@ -102,13 +102,13 @@ class ZainQQLrc {
     /**
      * Downloads a lyric with the specific ID. Will have Chinese translation if {@code NEED_TRANSLATION} is {@code TRUE}.
      */
-    public function getLyrics($id, $info,$title) {
+    public function getLyrics($id, $info) {
         $lrc = $this->downloadLyric($id);
         if ($this->isNullOrEmptyString($lrc)) {
             return FALSE;
         }
 
-        $info->addLyrics($lrc, $id, $title);
+        $info->addLyrics($lrc, $id);
 
         return true;
     }
