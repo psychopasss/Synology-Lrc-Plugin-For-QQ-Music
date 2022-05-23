@@ -113,8 +113,8 @@ class QQLrc {
         $info->addLyrics($lrc, $id);
 
         // save lrc file
-        $myfile = fopen($this->mOriginTitle.".lrc","w");
-        fwrite($myfile, $lrc);
+        // $myfile = fopen($this->mOriginTitle.".lrc","w");
+        // fwrite($myfile, $lrc);
 
         return true;
     }
