@@ -16,9 +16,10 @@ const NEED_TRANSLATION = true;
  * @author PsychoPass (https://github.com/psychopasss/Synology-Lrc-Plugin-For-QQ-Music)
  * @see https://global.download.synology.com/download/Document/DeveloperGuide/AS_Guide.pdf
  */
-class ZainQQLrc {
+class QQLrc {
     private $mArtist = "";
     private $mTitle = "";
+    public $mOriginTitle = "";
 
     ///////////////////////////// Synology API ///////////////////////////////////////
 
@@ -26,6 +27,7 @@ class ZainQQLrc {
      * Searches for a song with the artist and title, and returns the matching result list. Result is sorted based on similarity of artist and title.
      */
     public function getLyricsList($artist, $title, $info) {
+        $this->mOriginTitle = $title;
         $artist = trim($artist);
         $title = trim($title);
         $this->mArtist = $artist;
@@ -72,10 +74,10 @@ class ZainQQLrc {
         $foundArray = array();
         foreach ($songArray as $song) {
             $elem = array(
-                'id' => $song['songid'],
-                'artist' => $song['singer'][0]["name"],
-                'title' => $song['songname'],
-                'alt' => $song['alias'][0] . "; Album: " . $song['albumname']
+                'id' => key_exists('songid',$song)?$song['songid']:'',
+                'artist' => key_exists('singer',$song)?$song['singer'][0]["name"]:'',
+                'title' => key_exists('songname',$song)?$song['songname']:'',
+                'alt' => key_exists('alias',$song)?$song['alias'][0] . "; ":'' . "Album: " . $song['albumname']
             );
             // Find the best match artist from all artists belong to a song
             $max = 0;
@@ -110,6 +112,10 @@ class ZainQQLrc {
 
         $info->addLyrics($lrc, $id);
 
+        // save lrc file
+        $myfile = fopen($this->mOriginTitle.".lrc","w");
+        fwrite($myfile, $lrc);
+
         return true;
     }
 
@@ -142,10 +148,13 @@ class ZainQQLrc {
 
                 // Find matching translation
                 $trans = "";
+                // error_log("key=".$key);
                 if (!$this->isNullOrEmptyString($key)) {
                     $time = $this->getTimeFromTag($key);
                     for ($i = $transCursor; $i < count($transLines); $i++) {
                         $tKey = $transLines[$i]['tag'];                                 
+                        // error_log(json_encode($transLines[$i])); 
+                        // error_log("tKey=".$tKey);
                         if ($this->getTimeFromTag($tKey) > $time) { // trans time tag is greater than org, no match found
                             $transCursor = $i;
                             break;
@@ -159,6 +168,8 @@ class ZainQQLrc {
                             break;
                         }
                     }
+                } else {
+                    $transCursor++;
                 }
                 
                 if (!$this->isNullOrEmptyString($trans)) { // $key is empty when it's not time tag, just metadata
@@ -212,7 +223,7 @@ class ZainQQLrc {
             }
             array_push($result, array(
                 'tag' => $key,
-                'lrc' => $value
+                'lrc' => $value=='//'?'':$value
             ));
         }
         return $result;
@@ -236,7 +247,7 @@ class ZainQQLrc {
         return (!isset($question) || trim($question)==='');
     }
 
-    ///////////////////////////// Netease API ///////////////////////////////////////
+    ///////////////////////////// QQ-Music API ///////////////////////////////////////
 
     /**
      * Searches for a song based on title.
@@ -292,16 +303,13 @@ if (DEBUG == true) {
             $this->items = array();
         }
 
-        public function addLyrics($lyric, $id, $title) {
+        public function addLyrics($lyric, $id) {
             printf("</br>");
             printf("song id: %s\n", $id);
             printf("</br>\n");
             printf("== lyric ==\n");
             printf("%s\n", $lyric);
             printf("** END of lyric **\n\n");
-
-            $myfile = fopen($title.".lrc","w");
-            fwrite($myfile, $lyric);
         }
 
         public function addTrackInfoToList($artist, $title, $id, $prefix) {
@@ -335,17 +343,18 @@ if (DEBUG == true) {
     /**
      * Main
      */
-    $title = "be my forever";
+    $title = "封茗囧菌 - マインドブランド";
     $artist = "";
     echo "Trying to find lyrics for ['$title'] by artist ['$artist'] ...</br>\n";
 
     $testObj = new TestObj();
-    $downloader = (new ReflectionClass("ZainQQLrc"))->newInstance();
+    $downloader = (new ReflectionClass("QQLrc"))->newInstance();
     $count = $downloader->getLyricsList($artist, $title, $testObj);
     if ($count > 0) {
         $item = $testObj->getFirstItem();
         if (array_key_exists('id', $item)) {
-            $downloader->getLyrics($item['id'], $testObj, $title);
+            $downloader->mOriginTitle = $title;
+            $downloader->getLyrics($item['id'], $testObj);
         } else {
             echo "\nno id to query lyric\n";
         }
