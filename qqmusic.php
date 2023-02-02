@@ -41,7 +41,7 @@ class QQLrc {
         }
 
         $json = json_decode($response, true);
-        $songArray = $json['data']['song']['list'];
+        $songArray = $json['data']['song']['itemlist'];
         
         // var_dump($songArray);
 
@@ -55,7 +55,7 @@ class QQLrc {
         foreach ($songArray as $song) {
             $lowTitle = strtolower($title);
             // var_dump("源歌名：".$lowTitle);
-            $lowResult = strtolower($song['songname']);
+            $lowResult = strtolower($song['name']);
             // var_dump("匹配歌名：".$lowResult."<br>");
              if (strtolower($lowTitle) === strtolower($lowResult)) {
                 array_push($exactMatchArray, $song);
@@ -74,10 +74,10 @@ class QQLrc {
         $foundArray = array();
         foreach ($songArray as $song) {
             $elem = array(
-                'id' => key_exists('songid',$song)?$song['songid']:'',
-                'artist' => key_exists('singer',$song)?$song['singer'][0]["name"]:'',
-                'title' => key_exists('songname',$song)?$song['songname']:'',
-                'alt' => key_exists('alias',$song)?$song['alias'][0] . "; ":'' . "Album: " . $song['albumname']
+                'id' => key_exists('id',$song)?$song['id']:'',
+                'artist' => key_exists('singer',$song)?$song['singer']:'',
+                'title' => key_exists('name',$song)?$song['name']:'',
+                'alt' => key_exists('alias',$song)?$song['alias'][0] . "; ":''
             );
             // Find the best match artist from all artists belong to a song
             $max = 0;
@@ -254,14 +254,14 @@ class QQLrc {
      */
     private static function search($word) {
         $params = array(
-            'w' => $word,
+            'key' => $word,
             'format' => 'json',
         );
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?".http_build_query($params)
+            CURLOPT_URL => "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg?".http_build_query($params)
         ));
 
         $output = curl_exec($curl);
@@ -282,7 +282,7 @@ class QQLrc {
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
             CURLOPT_HTTPHEADER => array(
-                "Referer:http://y.qq.com/portal/song/002OrhQA0bNYFg.html"
+                "Referer: http://y.qq.com/"
             ),
             CURLOPT_RETURNTRANSFER => true
         ));
